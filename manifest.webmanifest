@@ -1,5 +1,5 @@
 {
-  "name": "Hello World",
+  "name": "Hello Audio",
   "short_name": "Hello",
   "start_url": "./",
   "display": "standalone",
@@ -7,5 +7,18 @@
   "theme_color": "#4f46e5",
   "icons": [
     { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
-  ]
+  ],
+  "file_handlers": [
+    {
+      "action": "./",
+      "accept": {
+        "audio/mpeg": [".mp3"],
+        "audio/wav": [".wav"],
+        "audio/ogg": [".ogg"],
+        "audio/mp4": [".m4a"],
+        "audio/flac": [".flac"]
+      }
+    }
+  ],
+  "launch_handler": { "client_mode": "focus-existing" }
 }
