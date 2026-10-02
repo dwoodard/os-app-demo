@@ -69,11 +69,16 @@
   <audio id="player" controls></audio>
   <ul id="list"></ul>
 
+  <button id="rec" hidden>● Record</button>
+  <p id="status"></p>
+  <a id="download" hidden></a>
+
   <label id="sessionLabel" hidden>Audio session:
     <select id="session">
       <option>auto</option>
       <option>transient</option>
       <option>transient-solo</option>
+      <option>play-and-record</option>
       <option>playback</option>
       <option>ambient</option>
     </select>
@@ -148,6 +153,47 @@
     }
 
     $('picker').addEventListener('change', e => addFiles([...e.target.files]));
+
+    // Recording: getUserMedia + MediaRecorder (needs HTTPS and mic permission).
+    if (navigator.mediaDevices?.getUserMedia && window.MediaRecorder) {
+      $('rec').hidden = false;
+      let recorder = null;
+      $('rec').addEventListener('click', async () => {
+        if (recorder) { recorder.stop(); return; }
+        let stream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch {
+          $('status').textContent = 'Microphone access was denied or is unavailable.';
+          return;
+        }
+        // Safari records mp4, Chrome/Firefox record webm or ogg, so pick what's supported.
+        const mime = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/ogg;codecs=opus']
+          .find(t => MediaRecorder.isTypeSupported(t)) || '';
+        const chunks = [];
+        recorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+        recorder.ondataavailable = e => chunks.push(e.data);
+        recorder.onstop = () => {
+          stream.getTracks().forEach(t => t.stop());
+          const type = recorder.mimeType || 'audio/webm';
+          const ext = type.includes('mp4') ? 'm4a' : type.includes('ogg') ? 'ogg' : 'webm';
+          const file = new File(chunks, `recording-${new Date().toISOString().replace(/[:.]/g, '-')}.${ext}`, { type });
+          recorder = null;
+          $('rec').textContent = '● Record';
+          $('status').textContent = '';
+          const a = $('download');
+          a.href = URL.createObjectURL(file);
+          a.download = file.name;
+          a.textContent = 'Download ' + file.name;
+          a.hidden = false;
+          addFiles([file]);
+        };
+        recorder.start();
+        $('rec').textContent = '■ Stop';
+        $('status').textContent = 'Recording…';
+        $('download').hidden = true;
+      });
+    }
 
     // File Handling: files opened from the OS arrive here (installed Chrome/Edge desktop).
     if ('launchQueue' in window) {
