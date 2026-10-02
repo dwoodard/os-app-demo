@@ -1,4 +1,4 @@
-const CACHE = 'hello-v3';
+const CACHE = 'hello-v4';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon.svg'];
 
 self.addEventListener('install', e => {

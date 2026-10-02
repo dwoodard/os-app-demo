@@ -3,92 +3,158 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Hello Audio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>PWA Kitchen Sink</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg">
   <meta name="theme-color" content="#4f46e5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Kitchen Sink">
   <style>
+    :root { --bg: #4f46e5; --card: rgba(255, 255, 255, .12); }
     body {
       margin: 0;
-      min-height: 100vh;
       font-family: system-ui, sans-serif;
-      background: #4f46e5;
+      background: var(--bg);
       color: #fff;
-      display: grid;
-      place-content: center;
-      justify-items: center;
-      gap: 1rem;
-      padding: 1rem;
+      padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
     }
-
-    h1 {
-      font-size: 2.5rem;
-      margin: 0;
-    }
-
-    p,
-    label {
-      opacity: .8;
-      margin: 0;
-    }
-
-    audio {
-      width: min(90vw, 420px);
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      width: min(90vw, 420px);
-    }
-
-    li {
-      padding: .5rem .75rem;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    li.active {
-      background: rgba(255, 255, 255, .2);
-    }
-
-    select,
-    input {
-      font: inherit;
-    }
+    main { max-width: 480px; margin: 0 auto; display: grid; gap: .75rem; }
+    h1 { margin: 0; font-size: 2rem; }
+    p, output, small { opacity: .85; margin: 0; }
+    details { background: var(--card); border-radius: 12px; padding: .75rem 1rem; }
+    summary { cursor: pointer; font-weight: 600; }
+    details > * { margin-top: .6rem; }
+    button, select, input, textarea { font: inherit; border-radius: 8px; border: 0; padding: .5rem .75rem; max-width: 100%; box-sizing: border-box; }
+    button { background: #fff; color: var(--bg); font-weight: 600; }
+    button:disabled { opacity: .4; }
+    textarea { width: 100%; }
+    output { display: block; white-space: pre-wrap; word-break: break-word; }
+    audio, video { width: 100%; border-radius: 8px; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li { padding: .4rem .6rem; border-radius: 8px; cursor: pointer; }
+    li.active { background: rgba(255, 255, 255, .2); }
+    #pad { height: 90px; border-radius: 8px; background: rgba(0, 0, 0, .25); display: grid; place-content: center; touch-action: none; user-select: none; -webkit-user-select: none; }
+    .box { width: 60px; height: 60px; background: #fff; border-radius: 12px; }
+    .box.big { width: 140px; }
   </style>
 </head>
 
 <body>
-  <h1>Hello, Audio!</h1>
-  <p id="info"></p>
+  <main>
+    <h1>PWA Kitchen Sink</h1>
+    <p id="info"></p>
 
-  <input id="picker" type="file" accept="audio/*" multiple>
-  <audio id="player" controls></audio>
-  <ul id="list"></ul>
+    <details open>
+      <summary>Install &amp; offline</summary>
+      <output id="install"></output>
+      <output id="online"></output>
+    </details>
 
-  <button id="rec" hidden>● Record</button>
-  <p id="status"></p>
-  <a id="download" hidden></a>
+    <details>
+      <summary>Audio player (+ session type, media session, AirPlay)</summary>
+      <input id="picker" type="file" accept="audio/*" multiple>
+      <audio id="player" controls playsinline></audio>
+      <ul id="list"></ul>
+      <label id="sessionLabel" hidden>Audio session:
+        <select id="session">
+          <option>auto</option><option>transient</option><option>transient-solo</option>
+          <option>play-and-record</option><option>playback</option><option>ambient</option>
+        </select>
+      </label>
+      <button id="airplay" hidden>AirPlay…</button>
+    </details>
 
-  <label id="sessionLabel" hidden>Audio session:
-    <select id="session">
-      <option>auto</option>
-      <option>transient</option>
-      <option>transient-solo</option>
-      <option>play-and-record</option>
-      <option>playback</option>
-      <option>ambient</option>
-    </select>
-  </label>
+    <details>
+      <summary>Record audio</summary>
+      <button id="rec">● Record</button>
+      <output id="recOut"></output>
+      <a id="download" hidden></a>
+    </details>
+
+    <details>
+      <summary>Camera</summary>
+      <video id="cam" playsinline muted autoplay></video>
+      <button id="camBtn">Start camera</button>
+      <output id="camOut"></output>
+    </details>
+
+    <details>
+      <summary>Speech: talk &amp; listen</summary>
+      <textarea id="say" rows="2">Hello from the kitchen sink</textarea>
+      <button id="speak">Speak</button>
+      <button id="listen">Listen</button>
+      <output id="speechOut"></output>
+      <small>Listening works in Safari but not (yet) when installed to the Home Screen.</small>
+    </details>
+
+    <details>
+      <summary>Share</summary>
+      <button id="share">Share this app</button>
+      <output id="shareOut"></output>
+    </details>
+
+    <details>
+      <summary>Notifications (local)</summary>
+      <button id="notify">Send test notification</button>
+      <output id="notifyOut"></output>
+      <small>iOS only allows these from the installed Home Screen app.</small>
+    </details>
+
+    <details>
+      <summary>Location</summary>
+      <button id="geo">Get location</button>
+      <output id="geoOut"></output>
+    </details>
+
+    <details>
+      <summary>Orientation &amp; motion</summary>
+      <button id="orient">Start sensors</button>
+      <output id="orientOut"></output>
+      <output id="motionOut"></output>
+    </details>
+
+    <details>
+      <summary>Wake lock</summary>
+      <button id="wake">Keep screen on</button>
+      <output id="wakeOut"></output>
+    </details>
+
+    <details>
+      <summary>Multi-touch</summary>
+      <div id="pad">Touch with several fingers</div>
+      <output id="touchOut"></output>
+    </details>
+
+    <details>
+      <summary>Passkey (WebAuthn / Face ID)</summary>
+      <button id="register">Create passkey</button>
+      <button id="login">Sign in</button>
+      <output id="authOut"></output>
+      <small>Local demo only: nothing is verified by a server.</small>
+    </details>
+
+    <details>
+      <summary>Storage &amp; compression</summary>
+      <button id="storage">Check storage</button>
+      <output id="storageOut"></output>
+      <button id="gzip">Gzip the text above</button>
+      <output id="gzipOut"></output>
+    </details>
+
+    <details>
+      <summary>View transition &amp; viewport</summary>
+      <div id="vt" class="box"></div>
+      <button id="vtBtn">Animate</button>
+      <output id="viewOut"></output>
+    </details>
+  </main>
 
   <script>
     const $ = id => document.getElementById(id);
-    const player = $('player');
-    let tracks = [];   // { name, url, key }
-    let current = -1;
+    const say = (id, msg) => { $(id).textContent = msg; };
+    // Disable a button and explain why when the browser lacks the API.
+    const gate = (btn, out, ok) => { if (!ok) { $(btn).disabled = true; if (out) say(out, 'Not supported in this browser.'); } return ok; };
 
     // localStorage can throw (private mode, blocked data), so wrap it.
     const store = {
@@ -98,7 +164,15 @@
 
     $('info').textContent = 'Running on ' + (navigator.userAgentData?.platform || navigator.platform);
 
-    // Settings: volume, audio session type
+    // ---- Install & offline ----
+    const standalone = navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+    say('install', standalone ? 'Installed: running as an app.' : 'Not installed. On iOS: Share → Add to Home Screen. On desktop: use the install icon.');
+    const showOnline = () => say('online', navigator.onLine ? 'Online' : 'Offline (cached copy running)');
+    addEventListener('online', showOnline); addEventListener('offline', showOnline); showOnline();
+
+    // ---- Audio player ----
+    const player = $('player');
+    let tracks = [], current = -1;
     player.volume = store.get('volume', 1);
     player.addEventListener('volumechange', () => store.set('volume', player.volume));
 
@@ -106,10 +180,11 @@
       $('sessionLabel').hidden = false;
       $('session').value = store.get('session', 'auto');
       navigator.audioSession.type = $('session').value;
-      $('session').addEventListener('change', e => {
-        navigator.audioSession.type = e.target.value;
-        store.set('session', e.target.value);
-      });
+      $('session').addEventListener('change', e => { navigator.audioSession.type = e.target.value; store.set('session', e.target.value); });
+    }
+    if (player.webkitShowPlaybackTargetPicker) {
+      $('airplay').hidden = false;
+      $('airplay').onclick = () => player.webkitShowPlaybackTargetPicker();
     }
 
     // Playback positions, keyed by name + size so same-named files don't collide.
@@ -121,6 +196,11 @@
     });
     player.addEventListener('ended', () => play(current + 1));
 
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.setActionHandler('previoustrack', () => play(current - 1));
+      navigator.mediaSession.setActionHandler('nexttrack', () => play(current + 1));
+    }
+
     function render() {
       $('list').replaceChildren(...tracks.map((t, i) => {
         const li = document.createElement('li');
@@ -130,46 +210,41 @@
         return li;
       }));
     }
-
     function play(i) {
       if (i < 0 || i >= tracks.length) return;
       current = i;
       player.src = tracks[i].url;
       player.currentTime = positions[tracks[i].key] || 0;
       player.play().catch(() => { });   // autoplay may be blocked until the user taps
+      if ('mediaSession' in navigator) navigator.mediaSession.metadata = new MediaMetadata({ title: tracks[i].name });
       store.set('last', tracks[i].key);
       render();
     }
-
     function addFiles(files) {
       const first = tracks.length;
-      for (const f of files) {
-        tracks.push({ name: f.name, url: URL.createObjectURL(f), key: f.name + ':' + f.size });
-      }
-      // Resume the last-played track if it's among the new files, otherwise start the first new one.
-      const last = store.get('last', null);
-      const resume = tracks.findIndex((t, i) => i >= first && t.key === last);
+      for (const f of files) tracks.push({ name: f.name, url: URL.createObjectURL(f), key: f.name + ':' + f.size });
+      const resume = tracks.findIndex((t, i) => i >= first && t.key === store.get('last', null));
       play(resume >= 0 ? resume : first);
     }
-
     $('picker').addEventListener('change', e => addFiles([...e.target.files]));
 
-    // Recording: getUserMedia + MediaRecorder (needs HTTPS and mic permission).
-    if (navigator.mediaDevices?.getUserMedia && window.MediaRecorder) {
-      $('rec').hidden = false;
+    // File Handling: files opened from the OS (installed Chrome/Edge desktop only; iOS ignores this).
+    if ('launchQueue' in window) {
+      launchQueue.setConsumer(async params => {
+        if (params.files.length) addFiles(await Promise.all(params.files.map(h => h.getFile())));
+      });
+    }
+
+    // ---- Record audio ----
+    if (gate('rec', 'recOut', navigator.mediaDevices?.getUserMedia && window.MediaRecorder)) {
       let recorder = null;
       $('rec').addEventListener('click', async () => {
         if (recorder) { recorder.stop(); return; }
         let stream;
-        try {
-          stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        } catch {
-          $('status').textContent = 'Microphone access was denied or is unavailable.';
-          return;
-        }
+        try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+        catch { say('recOut', 'Microphone access was denied or is unavailable.'); return; }
         // Safari records mp4, Chrome/Firefox record webm or ogg, so pick what's supported.
-        const mime = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/ogg;codecs=opus']
-          .find(t => MediaRecorder.isTypeSupported(t)) || '';
+        const mime = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/ogg;codecs=opus'].find(t => MediaRecorder.isTypeSupported(t)) || '';
         const chunks = [];
         recorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
         recorder.ondataavailable = e => chunks.push(e.data);
@@ -180,28 +255,148 @@
           const file = new File(chunks, `recording-${new Date().toISOString().replace(/[:.]/g, '-')}.${ext}`, { type });
           recorder = null;
           $('rec').textContent = '● Record';
-          $('status').textContent = '';
+          say('recOut', '');
           const a = $('download');
-          a.href = URL.createObjectURL(file);
-          a.download = file.name;
-          a.textContent = 'Download ' + file.name;
-          a.hidden = false;
+          a.href = URL.createObjectURL(file); a.download = file.name; a.textContent = 'Download ' + file.name; a.hidden = false;
           addFiles([file]);
         };
         recorder.start();
         $('rec').textContent = '■ Stop';
-        $('status').textContent = 'Recording…';
+        say('recOut', 'Recording…');
         $('download').hidden = true;
       });
     }
 
-    // File Handling: files opened from the OS arrive here (installed Chrome/Edge desktop).
-    if ('launchQueue' in window) {
-      launchQueue.setConsumer(async params => {
-        if (!params.files.length) return;
-        addFiles(await Promise.all(params.files.map(h => h.getFile())));
-      });
+    // ---- Camera ----
+    if (gate('camBtn', 'camOut', navigator.mediaDevices?.getUserMedia)) {
+      let camStream = null;
+      $('camBtn').onclick = async () => {
+        if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; $('cam').srcObject = null; $('camBtn').textContent = 'Start camera'; return; }
+        try {
+          camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+          $('cam').srcObject = camStream; $('camBtn').textContent = 'Stop camera'; say('camOut', '');
+        } catch { say('camOut', 'Camera access was denied or is unavailable.'); }
+      };
     }
+
+    // ---- Speech ----
+    if (gate('speak', 'speechOut', 'speechSynthesis' in window)) {
+      $('speak').onclick = () => speechSynthesis.speak(new SpeechSynthesisUtterance($('say').value));
+    }
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (gate('listen', null, Recognition)) {
+      $('listen').onclick = () => {
+        const r = new Recognition();
+        r.onresult = e => say('speechOut', 'Heard: ' + e.results[0][0].transcript);
+        r.onerror = e => say('speechOut', 'Error: ' + e.error);
+        r.start(); say('speechOut', 'Listening…');
+      };
+    }
+
+    // ---- Share ----
+    if (gate('share', 'shareOut', navigator.share)) {
+      $('share').onclick = () => navigator.share({ title: document.title, url: location.href }).catch(() => { });
+    }
+
+    // ---- Notifications (local) ----
+    if (gate('notify', 'notifyOut', 'Notification' in window && 'serviceWorker' in navigator)) {
+      $('notify').onclick = async () => {
+        if (await Notification.requestPermission() !== 'granted') return say('notifyOut', 'Permission not granted.');
+        const reg = await navigator.serviceWorker.ready;
+        reg.showNotification('Kitchen Sink', { body: 'Hello from a local notification', icon: 'icon.svg' });
+        say('notifyOut', 'Sent.');
+      };
+    }
+
+    // ---- Location ----
+    if (gate('geo', 'geoOut', navigator.geolocation)) {
+      $('geo').onclick = () => {
+        say('geoOut', 'Locating…');
+        navigator.geolocation.getCurrentPosition(
+          p => say('geoOut', `${p.coords.latitude.toFixed(4)}, ${p.coords.longitude.toFixed(4)} (±${Math.round(p.coords.accuracy)} m)`),
+          e => say('geoOut', 'Error: ' + e.message));
+      };
+    }
+
+    // ---- Orientation & motion (iOS needs a permission request from a tap) ----
+    if (gate('orient', 'orientOut', 'DeviceOrientationEvent' in window)) {
+      $('orient').onclick = async () => {
+        if (typeof DeviceOrientationEvent.requestPermission === 'function'
+          && await DeviceOrientationEvent.requestPermission() !== 'granted') return say('orientOut', 'Permission denied.');
+        addEventListener('deviceorientation', e => say('orientOut', `α ${e.alpha?.toFixed(0)}  β ${e.beta?.toFixed(0)}  γ ${e.gamma?.toFixed(0)}`));
+        addEventListener('devicemotion', e => {
+          const a = e.accelerationIncludingGravity;
+          if (a) say('motionOut', `accel x ${a.x?.toFixed(1)}  y ${a.y?.toFixed(1)}  z ${a.z?.toFixed(1)}`);
+        });
+      };
+    }
+
+    // ---- Wake lock ----
+    if (gate('wake', 'wakeOut', navigator.wakeLock)) {
+      let lock = null;
+      $('wake').onclick = async () => {
+        if (lock) { await lock.release(); lock = null; $('wake').textContent = 'Keep screen on'; return say('wakeOut', 'Released.'); }
+        try {
+          lock = await navigator.wakeLock.request('screen');
+          lock.addEventListener('release', () => { lock = null; $('wake').textContent = 'Keep screen on'; });
+          $('wake').textContent = 'Release'; say('wakeOut', 'Screen will stay on.');
+        } catch (e) { say('wakeOut', 'Error: ' + e.message); }
+      };
+    }
+
+    // ---- Multi-touch ----
+    const touches = e => { say('touchOut', e.touches.length + ' finger(s)'); };
+    ['touchstart', 'touchmove', 'touchend'].forEach(t => $('pad').addEventListener(t, touches, { passive: true }));
+
+    // ---- Passkey (WebAuthn): client-only demo, nothing is verified server-side ----
+    const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+    const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+    const rand = n => crypto.getRandomValues(new Uint8Array(n));
+    if (gate('register', 'authOut', window.PublicKeyCredential)) {
+      $('register').onclick = async () => {
+        try {
+          const cred = await navigator.credentials.create({ publicKey: {
+            challenge: rand(32), rp: { name: 'Kitchen Sink' },
+            user: { id: rand(16), name: 'demo', displayName: 'Demo' },
+            pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+            authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required' }
+          } });
+          store.set('credId', b64(cred.rawId)); say('authOut', 'Passkey created.');
+        } catch (e) { say('authOut', 'Error: ' + e.message); }
+      };
+      $('login').onclick = async () => {
+        const id = store.get('credId', null);
+        if (!id) return say('authOut', 'Create a passkey first.');
+        try {
+          await navigator.credentials.get({ publicKey: { challenge: rand(32), allowCredentials: [{ type: 'public-key', id: unb64(id) }], userVerification: 'required' } });
+          say('authOut', 'Signed in (not verified by a server).');
+        } catch (e) { say('authOut', 'Error: ' + e.message); }
+      };
+    } else $('login').disabled = true;
+
+    // ---- Storage & compression ----
+    if (gate('storage', 'storageOut', navigator.storage?.estimate)) {
+      $('storage').onclick = async () => {
+        const e = await navigator.storage.estimate();
+        const persisted = navigator.storage.persist ? await navigator.storage.persist() : false;
+        say('storageOut', `Used ${(e.usage / 1024).toFixed(0)} KB of ${(e.quota / 1048576).toFixed(0)} MB. Persistent: ${persisted}`);
+      };
+    }
+    if (gate('gzip', 'gzipOut', window.CompressionStream)) {
+      $('gzip').onclick = async () => {
+        const raw = new TextEncoder().encode($('say').value.repeat(20));
+        const packed = await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer();
+        say('gzipOut', `${raw.length} bytes → ${packed.byteLength} bytes (text repeated 20×)`);
+      };
+    }
+
+    // ---- View transition & viewport ----
+    $('vtBtn').onclick = () => {
+      const flip = () => $('vt').classList.toggle('big');
+      document.startViewTransition ? document.startViewTransition(flip) : flip();
+    };
+    const showView = () => say('viewOut', `${innerWidth}×${innerHeight}, ${devicePixelRatio}x, standalone: ${standalone}`);
+    addEventListener('resize', showView); showView();
 
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
   </script>
