@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cornhole">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Cornhole</title>
+<style>
+:root{font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"SF Pro Rounded",sans-serif;color-scheme:dark;--red:#fb5b62;--blue:#55a7ff;--bg:#0b1020;--card:#151d31;--muted:#8f9bb3;--line:#27324b;--gold:#f8c55c}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#1a2541 0,#0b1020 45%);color:#fff;min-height:100svh;padding:max(14px,env(safe-area-inset-top)) 14px max(18px,env(safe-area-inset-bottom));touch-action:manipulation}button{font:inherit;color:inherit}.app{max-width:430px;margin:auto;display:grid;gap:12px}.top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;background:rgba(21,29,49,.92);border:1px solid var(--line);border-radius:22px;padding:14px;box-shadow:0 14px 35px #0005}.team{text-align:center}.team strong{display:block;font-size:13px;letter-spacing:.08em;text-transform:uppercase}.score{font-size:54px;line-height:.9;font-weight:900;margin-top:5px}.red .score,.red strong{color:var(--red)}.blue .score,.blue strong{color:var(--blue)}.round{text-align:center;min-width:100px}.round b{display:block;font-size:13px}.round span{display:block;color:var(--muted);font-size:12px;margin-top:4px}.board-wrap{position:relative;background:#10182a;border:1px solid var(--line);border-radius:24px;padding:16px;overflow:hidden}.prompt{text-align:center;margin:0 0 12px;font-weight:800}.prompt small{display:block;color:var(--muted);font-weight:500;margin-top:4px}.lane{position:relative;height:390px;border:2px dashed #35415c;border-radius:22px;background:linear-gradient(#0d1425,#111a2d);overflow:hidden}.board{position:absolute;left:50%;top:50%;width:178px;height:300px;transform:translate(-50%,-48%) perspective(500px) rotateX(4deg);background:linear-gradient(160deg,#d6a36d,#a96d3c);border:6px solid #7b4a27;border-radius:18px 18px 12px 12px;box-shadow:0 18px 35px #0008}.hole{position:absolute;left:50%;top:48px;width:72px;height:72px;transform:translateX(-50%);border-radius:50%;background:#111827;box-shadow:inset 0 7px 12px #000}.target{position:absolute;border:0;background:transparent;z-index:3}.target.hole-target{left:50%;top:38px;width:105px;height:105px;transform:translateX(-50%);border-radius:50%}.target.board-target{left:50%;top:125px;width:190px;height:230px;transform:translateX(-50%)}.target.miss-target{inset:0;z-index:1}.bag{position:absolute;width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font-size:12px;font-weight:900;border:3px solid #fff9;box-shadow:0 5px 10px #0008;z-index:5;user-select:none;-webkit-user-select:none;touch-action:none}.bag.red{background:var(--red)}.bag.blue{background:var(--blue)}.bag.active{outline:4px solid var(--gold);transform:scale(1.08)}.bag.miss{opacity:.55}.throw-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.throw-buttons button,.actions button{border:1px solid var(--line);background:#1a243b;border-radius:15px;padding:13px 8px;font-weight:800}.throw-buttons button:active,.actions button:active{transform:scale(.97)}.throw-buttons .hole-btn{background:#fff;color:#111827}.preview{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;margin-top:12px;padding:10px 12px;background:#0c1323;border-radius:16px}.preview div{text-align:center}.preview strong{font-size:20px}.preview small{display:block;color:var(--muted)}.preview .net{color:var(--gold);font-weight:900;font-size:13px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions .primary{background:#fff;color:#111827}.footer{text-align:center;color:var(--muted);font-size:11px}.winner{position:fixed;inset:0;background:#07101be8;z-index:20;display:grid;place-items:center;padding:24px}.winner[hidden]{display:none}.winner-card{width:min(360px,100%);text-align:center;background:#151d31;border:1px solid var(--line);border-radius:28px;padding:30px 22px}.winner-card h2{font-size:42px;margin:0 0 8px}.winner-card button{border:0;background:#fff;color:#111827;border-radius:15px;padding:14px 20px;font-weight:900;width:100%;margin-top:18px}@media(max-height:720px){.lane{height:330px}.board{height:255px;width:150px}.hole{top:38px;width:62px;height:62px}.target.board-target{top:110px;height:190px}.score{font-size:46px}}
+</style>
+</head>
+<body>
+<main class="app">
+<section class="top">
+<div class="team red"><strong>Red</strong><div class="score" id="redScore">0</div></div>
+<div class="round"><b id="roundLabel">Round 1</b><span id="starterLabel">Red throws first</span></div>
+<div class="team blue"><strong>Blue</strong><div class="score" id="blueScore">0</div></div>
+</section>
+<section class="board-wrap">
+<p class="prompt" id="prompt">Red · Bag 1<small>Tap where the bag landed</small></p>
+<div class="lane" id="lane">
+<button class="target miss-target" data-result="miss" aria-label="Miss"></button>
+<div class="board"><div class="hole"></div></div>
+<button class="target hole-target" data-result="hole" aria-label="In the hole"></button>
+<button class="target board-target" data-result="board" aria-label="On the board"></button>
+</div>
+<div class="throw-buttons">
+<button data-result="miss">Miss · 0</button><button data-result="board">Board · 1</button><button class="hole-btn" data-result="hole">Hole · 3</button>
+</div>
+<div class="preview"><div><strong id="redRound">0</strong><small>Red bags</small></div><div class="net" id="net">Wash</div><div><strong id="blueRound">0</strong><small>Blue bags</small></div></div>
+</section>
+<section class="actions"><button id="undo">Undo</button><button class="primary" id="nextRound">Score Round</button></section>
+<div class="footer" id="status">Exact 21 wins · Over 21 returns to 11</div>
+</main>
+<div class="winner" id="winner" hidden><div class="winner-card"><div>🏆</div><h2 id="winnerText">Red wins!</h2><p id="winnerScore"></p><button id="newGame">New Game</button></div></div>
+<script>
+const $=s=>document.querySelector(s)
+const $$=s=>[...document.querySelectorAll(s)]
+const POINTS={miss:0,board:1,hole:3}
+const initial=()=>({scores:{red:0,blue:0},starter:'red',round:1,throws:[],history:[]})
+let state=load()
+function load(){try{return {...initial(),...JSON.parse(localStorage.getItem('cornhole-v2')||'null')}}catch{return initial()}}
+function save(){localStorage.setItem('cornhole-v2',JSON.stringify(state))}
+function teamForThrow(i){return i%2===0?state.starter:(state.starter==='red'?'blue':'red')}
+function teamThrows(team){return state.throws.filter((_,i)=>teamForThrow(i)===team)}
+function raw(team){return teamThrows(team).reduce((n,t)=>n+POINTS[t.result],0)}
+function currentTeam(){return teamForThrow(state.throws.length)}
+function bagNumber(){return Math.floor(state.throws.length/2)+1}
+function snapshot(){return JSON.stringify({scores:state.scores,starter:state.starter,round:state.round,throws:state.throws})}
+function restore(s){const x=JSON.parse(s);Object.assign(state,x);save();render()}
+function place(result,x=null,y=null){if(state.throws.length>=8)return;state.history.push(snapshot());state.throws.push({result,x,y});save();render()}
+function roundNet(){const r=raw('red'),b=raw('blue');return {red:r,blue:b,delta:r-b}}
+function applyScore(team,amount){let n=state.scores[team]+amount;if(n>21)n=11;state.scores[team]=n;return n===21}
+function scoreRound(){if(!state.throws.length)return;state.history.push(snapshot());const {delta}=roundNet();let scoring=null,win=false;if(delta>0){scoring='red';win=applyScore('red',delta)}else if(delta<0){scoring='blue';win=applyScore('blue',-delta)}if(win){save();showWinner(scoring);return}if(scoring)state.starter=scoring;state.round++;state.throws=[];save();render()}
+function undo(){const s=state.history.pop();if(s)restore(s)}
+function showWinner(team){$('#winnerText').textContent=`${team==='red'?'Red':'Blue'} wins!`;$('#winnerScore').textContent=`${state.scores.red} – ${state.scores.blue}`;$('#winner').hidden=false}
+function reset(){state=initial();save();$('#winner').hidden=true;render()}
+function bagPosition(t,i){if(t.x!=null)return [t.x,t.y];const team=teamForThrow(i),n=Math.floor(i/2);if(t.result==='hole')return [50+(n-1.5)*4,27+(n%2)*3];if(t.result==='board')return [team==='red'?39+n*4:61-n*4,58+(n%2)*8];return [team==='red'?12+n*5:88-n*5,78-(n%2)*12]}
+function renderBags(){$$('.bag').forEach(x=>x.remove());state.throws.forEach((t,i)=>{const b=document.createElement('div');const team=teamForThrow(i),[x,y]=bagPosition(t,i);b.className=`bag ${team} ${t.result==='miss'?'miss':''}`;b.textContent=Math.floor(i/2)+1;b.style.left=`calc(${x}% - 18px)`;b.style.top=`calc(${y}% - 18px)`;b.dataset.i=i;enableDrag(b);$('#lane').append(b)})}
+function enableDrag(el){let moved=false;const move=e=>{moved=true;const p=e.touches?.[0]||e,r=$('#lane').getBoundingClientRect();let x=Math.max(0,Math.min(100,(p.clientX-r.left)/r.width*100)),y=Math.max(0,Math.min(100,(p.clientY-r.top)/r.height*100));el.style.left=`calc(${x}% - 18px)`;el.style.top=`calc(${y}% - 18px)`;el._xy=[x,y]};const end=()=>{removeEventListener('pointermove',move);removeEventListener('pointerup',end);if(moved&&el._xy){state.history.push(snapshot());const t=state.throws[+el.dataset.i];t.x=el._xy[0];t.y=el._xy[1];const r=$('#lane').getBoundingClientRect(),cx=t.x/100*r.width,cy=t.y/100*r.height,bx=r.width/2,boardTop=r.height*.12,bw=Math.min(178,r.width*.46),bh=Math.min(300,r.height*.77),holeY=boardTop+55;if(Math.hypot(cx-bx,cy-holeY)<42)t.result='hole';else if(cx>bx-bw/2&&cx<bx+bw/2&&cy>boardTop&&cy<boardTop+bh)t.result='board';else t.result='miss';save();render()}};el.addEventListener('pointerdown',e=>{e.preventDefault();addEventListener('pointermove',move);addEventListener('pointerup',end)})}
+function render(){const {red,blue,delta}=roundNet();$('#redScore').textContent=state.scores.red;$('#blueScore').textContent=state.scores.blue;$('#redRound').textContent=red;$('#blueRound').textContent=blue;$('#roundLabel').textContent=`Round ${state.round}`;$('#starterLabel').textContent=`${state.starter==='red'?'Red':'Blue'} throws first`;$('#net').textContent=delta===0?'Wash':delta>0?`Red +${delta}`:`Blue +${-delta}`;const done=state.throws.length>=8;$('#prompt').innerHTML=done?'Round ready<small>Review bags or score the round</small>':`${currentTeam()==='red'?'Red':'Blue'} · Bag ${bagNumber()}<small>Tap where the bag landed</small>`;$('#nextRound').disabled=!state.throws.length;$('#nextRound').textContent=done?'Score Round':`Score Now (${state.throws.length}/8)`;$('#undo').disabled=!state.history.length;renderBags()}
+$$('[data-result]').forEach(b=>b.addEventListener('click',e=>{if(e.currentTarget.classList.contains('target')){const r=$('#lane').getBoundingClientRect(),p=e;place(e.currentTarget.dataset.result,(p.clientX-r.left)/r.width*100,(p.clientY-r.top)/r.height*100)}else place(e.currentTarget.dataset.result)}))
+$('#nextRound').onclick=scoreRound;$('#undo').onclick=undo;$('#newGame').onclick=reset
+render()
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js')
+</script>
+</body>
+</html>
